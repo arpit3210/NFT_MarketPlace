@@ -77,7 +77,7 @@ contract NFTMarketplace is ERC721URIStorage {
     // creating market item
     function createMarketItem(uint tokenId, uint256 price) private {
         require(price > 0, "price must be atleast 1");
-        require(msg.sender == listingPrice, "price must be equal to list");
+        require(msg.value == listingPrice, "price must be equal to list");
 
         idMarketItem[tokenId] = MarketItem(
             tokenId,
@@ -113,7 +113,7 @@ contract NFTMarketplace is ERC721URIStorage {
         idMarketItem[tokenId].seller == payable(msg.sender);
         idMarketItem[tokenId].owner == payable(address(this));
 
-        _itemsSold.decreament();
+        _itemsSold.decrement();
 
         _transfer(msg.sender, address(this), tokenId);
     }
@@ -137,15 +137,14 @@ contract NFTMarketplace is ERC721URIStorage {
         _transfer(address(this), msg.sender, tokenId);
 
         payable(owner).transfer(listingPrice);
-        payable(idMarketItem[tokenId].seller).trasnfer(msg.value);
+        payable(idMarketItem[tokenId].seller).transfer(msg.value);
     }
 
     // getting unsold nft data
 
     function fetchMarketItem() public view returns (MarketItem[] memory) {
         uint256 itemCount = _tokenIds.current();
-        uint256 unSoldItemCount = _tokenIds.current();
-        -_itemsSold.current();
+        uint256 unSoldItemCount = _tokenIds.current() - _itemsSold.current();
         uint256 currentIndex = 0;
 
         MarketItem[] memory items = new MarketItem[](unSoldItemCount);
